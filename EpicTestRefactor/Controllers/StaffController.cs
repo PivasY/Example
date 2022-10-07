@@ -10,14 +10,14 @@ namespace EpicTestRefactor.Controllers
     {
         public EmployeeService EmployeeService { get; set; }
 
-        StaffController()
+        public StaffController()
         {
             EmployeeService = new EmployeeService();
         }
 
         [HttpGet]
         [Route("get")]
-        public async Task<Employee> Get(int id)
+        public async Task<Employee?> Get(int id)
         {
             return await EmployeeService.GetEmployee(id);
         }
@@ -40,9 +40,15 @@ namespace EpicTestRefactor.Controllers
         [Route("delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            EmployeeService.DeleteEmployee(id);
-
-            return Ok();
+            //try
+            //{
+                var t = await EmployeeService.DeleteEmployee(id);
+                return Ok();
+            //}
+            //catch
+            //{
+            //    return StatusCode(StatusCodes.Status204NoContent);
+            //}
         }
     }
 }

@@ -28,12 +28,13 @@ namespace EpicTestRefactor.Application
             return result;
         }
 
-        public async void DeleteEmployee(int id)
+        public async Task<bool> DeleteEmployee(int id)
         {
-            EmployeeRepository.DeleteEmployee(id);
+            var result = await EmployeeRepository.DeleteEmployee(id);
+            return result;
         }
 
-        public async Task<Employee> GetEmployee(int id)
+        public async Task<Employee?> GetEmployee(int id)
         {
             var employee = await EmployeeRepository.GetEmployee(id);
 
@@ -41,7 +42,7 @@ namespace EpicTestRefactor.Application
         }
 
 
-        public void ValidateFields(Employee employee)
+        private void ValidateFields(Employee employee)
         {
             if (string.IsNullOrEmpty(employee.Name))
                 throw new Exception("Validation error: " + nameof(employee.Name) + " is empty");
