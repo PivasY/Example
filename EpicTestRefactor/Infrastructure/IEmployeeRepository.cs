@@ -5,9 +5,9 @@ namespace EpicTestRefactor.Infrastructure
     public interface IEmployeeRepository
     {
         Task<Employee> AddEmployee(Employee employee);
-        Task<Employee?> GetEmployee(int id);
+        Task<Employee> GetEmployee(int id);
         Task<Employee> UpdateEmployee(Employee employee);
-        pubic Task<bool> DeleteEmployee(int id);
+        Task<bool> DeleteEmployee(Employee employee);
 
     }
 }
