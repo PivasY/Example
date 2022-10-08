@@ -1,43 +1,51 @@
 ﻿using EpicTestRefactor.Domain;
 using EpicTestRefactor.Infrastructure;
 
+using Microsoft.AspNetCore.Mvc;
+
 namespace EpicTestRefactor.Application
 {
-    public class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
-        public EmployeeRepository EmployeeRepository { get; set; }
+        private readonly IEmployeeRepository _employeeRepository;
 
-        public EmployeeService()
+        public EmployeeService(IEmployeeRepository employeeRepository)
         {
-            EmployeeRepository = new EmployeeRepository();
+            _employeeRepository = employeeRepository;
         }
 
         public async Task<Employee> AddEmployee(Employee employee)
         {
             ValidateFields(employee);
-            var result = await EmployeeRepository.AddEmployee(employee);
-
-            return result;
+            var checkWithId = await _employeeRepository.GetEmployee(employee.Id);
+            if (checkWithId == null)
+            {
+                var result = await _employeeRepository.AddEmployee(employee);
+                return result;
+            }
+            return null;
         }
 
         public async Task<Employee> UpdateEmployee(Employee employee)
         {
             ValidateFields(employee);
-            var result = await EmployeeRepository.UpdateEmployee(employee);
+            var result = await _employeeRepository.UpdateEmployee(employee);
 
             return result;
         }
 
         public async Task<bool> DeleteEmployee(int id)
         {
-            var result = await EmployeeRepository.DeleteEmployee(id);
-            return result;
+            var employee = await _employeeRepository.GetEmployee(id);
+            if (employee == null) 
+                return false;
+            var result = await _employeeRepository.DeleteEmployee(employee);
+            return true;
         }
 
-        public async Task<Employee?> GetEmployee(int id)
+        public async Task<Employee> GetEmployee(int id)
         {
-            var employee = await EmployeeRepository.GetEmployee(id);
-
+            var employee = await _employeeRepository.GetEmployee(id);
             return employee;
         }
 
@@ -51,7 +59,7 @@ namespace EpicTestRefactor.Application
                 throw new Exception("Validation error: " + nameof(employee.Surname) + " is empty");
 
             if (employee.Salary < 0)
-                throw new Exception("Validation error: " + nameof(employee.Salary) + " invalida value");
+                throw new Exception("Validation error: " + nameof(employee.Salary) + " has invalid value");
         }
     }
 }

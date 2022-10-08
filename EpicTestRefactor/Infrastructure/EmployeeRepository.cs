@@ -2,18 +2,15 @@
 
 namespace EpicTestRefactor.Infrastructure
 {
-    public class EmployeeRepository
+    public class EmployeeRepository : IEmployeeRepository
     {
 
-        private static List<Employee> employeesSingleton;
+        private List<Employee> _employees;
  
         public EmployeeRepository()
         {
-            if (employeesSingleton == null)
-                employeesSingleton = new List<Employee>();
+            _employees = new List<Employee>();
         }
-
-        public List<Employee> Employees { get { return employeesSingleton; } set { employeesSingleton = value; } }
 
         public async Task<Employee> AddEmployee(Employee employee)
         {
@@ -21,7 +18,8 @@ namespace EpicTestRefactor.Infrastructure
             var existEmployee = await FindEmployee(employee.Id);
             if (existEmployee != null)
                 throw new Exception($"Employee with id = {employee.Id} exists, can't insert new record");
-            Employees.Add(employee);
+            
+            this._employees.Add(employee);
             return employee;
         }
 
@@ -31,35 +29,56 @@ namespace EpicTestRefactor.Infrastructure
             //if I have right understending this just for simulaite behavior like DB and it's not necessary deeper how implement update
             if (employeeInDb == null)
                 throw new Exception($"Employee with id = {employee.Id} not found, nothing to update!");
-            Employees.Remove(employeeInDb);
-            Employees.Add(employee);
+            _employees.Remove(employeeInDb);
+            _employees.Add(employee);
 
             return employee;
         }
 
-        public async Task<bool> DeleteEmployee(int id)
+        public async Task<bool> DeleteEmployee(Employee employee)
         {
-            var employee = await FindEmployee(id);
-            if (employee == null) throw new Exception($"Employee with id = {id} not found, nothing to delete");
-            Employees.Remove(employee);
+            _employees.Remove(employee);
             return true;
         }
 
-        public async Task<Employee?> GetEmployee(int id)
+        public async Task<Employee> GetEmployee(int id)
         {
             var employee = await FindEmployee(id);
-            if (employee == null) throw new Exception($"Employee with id = {id} not found!");
-
             return employee;
         }
 
-        public async Task<Employee?> FindEmployee(int id)
+        private async Task<Employee> FindEmployee(int id)
         {
-            var result = Employees.Where(t => t.Id == id).FirstOrDefault();
-
             await Task.Delay(100); // imitation db reading delay
+            
+            return _employees.Where(t => t.Id == id).FirstOrDefault();
 
-            return result;
+        }
+
+        private void InitData()
+        {
+            _employees.Add(new Employee()
+            {
+                Id = 1,
+                Name = "Pavel",
+                Surname = "Vasylenko",
+                Position = new Position() { Id = 1, Name = ".Net dev" },
+                Gender = Gender.Male,
+                Salary = 5,
+                Phone = "0688766776"
+            });
+
+            _employees.Add(new Employee()
+            {
+                Id = 2,
+                Name = "Kat",
+                Surname = "Usova",
+                Position = new Position() { Id = 2, Name = "Accounter" },
+                Gender = Gender.Female,
+                Salary = 2,
+                Phone = "09954334566"
+            });
+
         }
     }
 }

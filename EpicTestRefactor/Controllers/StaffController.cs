@@ -8,47 +8,45 @@ namespace EpicTestRefactor.Controllers
     [Route("/api/Employees")]
     public class StaffController : ControllerBase
     {
-        public EmployeeService EmployeeService { get; set; }
+        private readonly IEmployeeService _employeeService;
 
-        public StaffController()
+        wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwpublic StaffController(IEmployeeService employeeService)
         {
-            EmployeeService = new EmployeeService();
+            _employeeService = employeeService;
         }
 
         [HttpGet]
         [Route("get")]
-        public async Task<Employee?> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return await EmployeeService.GetEmployee(id);
+            var result = await _employeeService.GetEmployee(id);
+            if (result == null)
+                return NotFound();
+            return Ok(result);
         }
 
         [HttpPost]
         [Route("create")]
-        public async Task<Employee> Post(Employee employee)
+        public async Task<IActionResult> Post([FromBody] Employee employee)
         {
-            return await EmployeeService.AddEmployee(employee);
+            var result = await _employeeService.AddEmployee(employee);
+            return Ok(result);
         }
 
         [HttpPut]
         [Route("update")]
-        public async Task<Employee> Put(Employee employee)
+        public async Task<IActionResult> Put([FromBody] Employee employee)
         {
-            return await EmployeeService.UpdateEmployee(employee);
+            var result =  await _employeeService.UpdateEmployee(employee);
+            return Ok(result);
         }
 
         [HttpDelete]
         [Route("delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            //try
-            //{
-                var t = await EmployeeService.DeleteEmployee(id);
-                return Ok();
-            //}
-            //catch
-            //{
-            //    return StatusCode(StatusCodes.Status204NoContent);
-            //}
+            var result = await _employeeService.DeleteEmployee(id);
+            return Ok(id);
         }
     }
 }
