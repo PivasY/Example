@@ -2,6 +2,9 @@ using EpicTestRefactor.Application;
 using EpicTestRefactor.Domain;
 using EpicTestRefactor.Infrastructure;
 
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
 
 var app = builder.Build();
 

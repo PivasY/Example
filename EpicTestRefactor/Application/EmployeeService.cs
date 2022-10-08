@@ -1,6 +1,8 @@
 ﻿using EpicTestRefactor.Domain;
 using EpicTestRefactor.Infrastructure;
 
+using FluentValidation;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpicTestRefactor.Application
@@ -8,15 +10,17 @@ namespace EpicTestRefactor.Application
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IValidator<Employee> _employeeValidator; 
 
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        public EmployeeService(IEmployeeRepository employeeRepository, IValidator<Employee> employeeValidator)
         {
             _employeeRepository = employeeRepository;
+            _employeeValidator = employeeValidator;
         }
 
         public async Task<Employee> AddEmployee(Employee employee)
         {
-            ValidateFields(employee);
+            Validate(employee);
             var checkWithId = await _employeeRepository.GetEmployee(employee.Id);
             if (checkWithId == null)
             {
@@ -28,7 +32,7 @@ namespace EpicTestRefactor.Application
 
         public async Task<Employee> UpdateEmployee(Employee employee)
         {
-            ValidateFields(employee);
+            Validate(employee);
             var result = await _employeeRepository.UpdateEmployee(employee);
 
             return result;
@@ -50,16 +54,12 @@ namespace EpicTestRefactor.Application
         }
 
 
-        private void ValidateFields(Employee employee)
+        private void Validate(Employee employee)
         {
-            if (string.IsNullOrEmpty(employee.Name))
-                throw new Exception("Validation error: " + nameof(employee.Name) + " is empty");
-
-            if (string.IsNullOrEmpty(employee.Surname))
-                throw new Exception("Validation error: " + nameof(employee.Surname) + " is empty");
-
-            if (employee.Salary < 0)
-                throw new Exception("Validation error: " + nameof(employee.Salary) + " has invalid value");
+            var result = _employeeValidator.Validate(employee);
+            if (result.IsValid) return;
+            
+            throw new Exception(result.ToString("; "));
         }
     }
 }
