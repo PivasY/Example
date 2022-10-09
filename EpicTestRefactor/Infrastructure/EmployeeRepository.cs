@@ -1,25 +1,27 @@
 ﻿using EpicTestRefactor.Domain;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace EpicTestRefactor.Infrastructure
 {
     public class EmployeeRepository : IEmployeeRepository
     {
 
-        private List<Employee> _employees;
- 
-        public EmployeeRepository()
+        private EpicContext _context;
+
+        public EmployeeRepository(EpicContext context)
         {
-            _employees = new List<Employee>();
+            _context = context;
         }
 
         public async Task<Employee> AddEmployee(Employee employee)
         {
-            await Task.Delay(100); // imitation db inserting delay
             var existEmployee = await FindEmployee(employee.Id);
             if (existEmployee != null)
                 throw new Exception($"Employee with id = {employee.Id} exists, can't insert new record");
-            
-            this._employees.Add(employee);
+
+            await _context.Employees.AddAsync(employee);
+            await _context.SaveChangesAsync();
             return employee;
         }
 
@@ -29,15 +31,18 @@ namespace EpicTestRefactor.Infrastructure
             //if I have right understending this just for simulaite behavior like DB and it's not necessary deeper how implement update
             if (employeeInDb == null)
                 throw new Exception($"Employee with id = {employee.Id} not found, nothing to update!");
-            _employees.Remove(employeeInDb);
-            _employees.Add(employee);
+            employeeInDb = employee;
+            _context.Employees.Update(employeeInDb);
+                
+            await _context.SaveChangesAsync();
 
             return employee;
         }
 
         public async Task<bool> DeleteEmployee(Employee employee)
         {
-            _employees.Remove(employee);
+            _context.Employees.Remove(employee);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -49,36 +54,8 @@ namespace EpicTestRefactor.Infrastructure
 
         private async Task<Employee> FindEmployee(int id)
         {
-            await Task.Delay(100); // imitation db reading delay
-            
-            return _employees.Where(t => t.Id == id).FirstOrDefault();
-
-        }
-
-        private void InitData()
-        {
-            _employees.Add(new Employee()
-            {
-                Id = 1,
-                Name = "Pavel",
-                Surname = "Vasylenko",
-                Position = new Position() { Id = 1, Name = ".Net dev" },
-                Gender = Gender.Male,
-                Salary = 5,
-                Phone = "0688766776"
-            });
-
-            _employees.Add(new Employee()
-            {
-                Id = 2,
-                Name = "Kat",
-                Surname = "Usova",
-                Position = new Position() { Id = 2, Name = "Accounter" },
-                Gender = Gender.Female,
-                Salary = 2,
-                Phone = "09954334566"
-            });
-
+            var employee = await _context.Employees.Where(t => t.Id == id).Where(t => t.Id == id).FirstOrDefaultAsync();
+            return employee;
         }
     }
 }

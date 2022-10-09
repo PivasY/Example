@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EpicTestRefactor.Domain
 {
@@ -9,10 +9,10 @@ namespace EpicTestRefactor.Domain
         public string Name { get; set; }
         
         public string Surname { get; set; }
+      
+        public Gender Gender { get; set; }
         
-        public Gender? Gender { get; set; }
-        
-        public Position? Position { get; set; }
+        public List<Position>? Position { get; set; }
         
         public float Salary { get; set; }
         

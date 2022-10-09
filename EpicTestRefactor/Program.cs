@@ -4,6 +4,7 @@ using EpicTestRefactor.Infrastructure;
 
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddDbContext<EpicContext>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
 
@@ -28,11 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
